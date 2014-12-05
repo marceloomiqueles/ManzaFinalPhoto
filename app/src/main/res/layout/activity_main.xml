@@ -1,0 +1,37 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
+    android:background="#ff000000">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="984px"
+        android:id="@+id/imageView1"
+        android:contentDescription="@string/Foto"
+        android:background="#ffffffff"
+        android:maxHeight="30dp"
+        android:layout_above="@+id/button1"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentRight="false"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="200px"
+        android:adjustViewBounds="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Foto"
+        android:id="@+id/button1"
+        android:layout_alignParentBottom="true"
+        android:background="#ffffffff"
+        android:layout_alignEnd="@+id/imageView1"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>
