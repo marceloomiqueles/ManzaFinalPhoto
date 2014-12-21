@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -30,18 +29,18 @@ import it.sauronsoftware.ftp4j.FTPClient;
 import it.sauronsoftware.ftp4j.FTPDataTransferListener;
 
 public class MainActivity extends Activity {
-    static final String FTP_HOST= "192.185.185.42";
-    static final String FTP_USER = "beelab";
-    static final String FTP_PASS  ="Fld)=tAGZaS~";
+    static final String FTP_HOST= "66.7.198.76";
+    static final String FTP_USER = "miselfie";
+    static final String FTP_PASS  ="h8hs4dDB80";
     private static final int CAMERA_REQUEST = 1888;
     private ImageView imageView;
     private File f;
-    private File l;
     private String filename;
     private String imageFileName;
+    static File file_name;
+    Thread thread;
 
-    public File getAlbumDir()
-    {
+    public File getAlbumDir() {
         File storageDir = new File(
                 Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_PICTURES
@@ -81,10 +80,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-
         setContentView(R.layout.activity_main);
         this.imageView = (ImageView)this.findViewById(R.id.imageView1);
         imageView.setImageBitmap(loadFrame());
@@ -117,20 +114,27 @@ public class MainActivity extends Activity {
             storeImage(merged);
             File r = new File("/storage/emulated/0/Pictures/BAC/" + filename + ".jpg");
             // Upload sdcard file
-            upLoadFile(r);
+            file_name = r;
+            thread = new Thread() {
+                public void run() {
+                    upLoadFile(file_name);
+                }
+            };
+            thread.start();
             imageView.setImageBitmap(merged);
-
+            Toast.makeText(getBaseContext(), " Subiendo archivo...", Toast.LENGTH_LONG).show();
             Intent i = new Intent(Intent.ACTION_SEND);
-            i.setType("message/rfc822");
             i.putExtra(Intent.EXTRA_EMAIL, new String[]{""});
             i.putExtra(Intent.EXTRA_BCC, new String[] {"sonyselfipascuero@gmail.com"});
             i.putExtra(Intent.EXTRA_SUBJECT, "Mi Selfi Con Santa");
-            i.putExtra(Intent.EXTRA_TEXT   , "Disfruta tu selfie con el Santa de Sony en http://www.miselficonsanta.cl ");
-
-
+            i.putExtra(Intent.EXTRA_TEXT   , "Felicitaciones ya tienes tu primer regalo, #miselfieconsanta. \n" +
+                    "Ingresa a nuestra página http://www.miselfieconsanta.cl busca tu foto, comparte con tus amigos en red social y podrás ganar un PS4 o un Xperia Z3. \n" +
+                    "Bases del concurso en http://www.miselfieconsanta.cl/bases_concurso.pdf");
+            i.setType("message/rfc822");
             i.putExtra(Intent.EXTRA_STREAM, uri);
             try {
-                startActivity(Intent.createChooser(i, "Enviar Correo"));
+                // startActivity(Intent.createChooser(i, "Enviar Correo"));
+                startActivity(i);
             } catch (android.content.ActivityNotFoundException ex) {
                 Toast.makeText(MainActivity.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
             }
@@ -154,30 +158,14 @@ public class MainActivity extends Activity {
         }
     }
 
-    /*private void storeImage(Bitmap image, String name) {
-        File pictureFile = new File(getAlbumDir().toString() +"/" + name + ".jpg");
-        if (pictureFile == null) {
-            //Log.d(TAG, "Error creating media file, check storage permissions: ");// e.getMessage());
-            return;
-        }
-        try {
-            FileOutputStream fos = new FileOutputStream(pictureFile);
-            image.compress(Bitmap.CompressFormat.PNG, 90, fos);
-            fos.close();
-        } catch (FileNotFoundException e) {
-            //Log.d(TAG, "File not found: " + e.getMessage());
-        } catch (IOException e) {
-            //Log.d(TAG, "Error accessing file: " + e.getMessage());
-        }
-    }*/
-
     public void upLoadFile(File fileName){
         FTPClient client = new FTPClient();
         try {
             client.connect(FTP_HOST,21);
             client.login(FTP_USER, FTP_PASS);
             client.setType(FTPClient.TYPE_BINARY);
-            client.changeDirectory("/public_html/Sony/");
+            //define el lugar!!!
+            client.changeDirectory("/public_html/Sony/vespucio");
             client.upload(fileName, new MyTransferListener());
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,53 +179,39 @@ public class MainActivity extends Activity {
 
     public class MyTransferListener implements FTPDataTransferListener {
         public void started() {
-            // btn.setVisibility(View.GONE);
             // Transfer started
-            // Toast.makeText(getBaseContext(), " Upload Started ...", Toast.LENGTH_SHORT).show();
-            System.out.println(" Upload Started ...");
+            //Toast.makeText(getBaseContext(), " Upload Started ...", Toast.LENGTH_SHORT).show();
         }
 
         public void transferred(int length) {
             // Yet other length bytes has been transferred since the last time this
             // method was called
-            // Toast.makeText(getBaseContext(), " transferred ..." + length, Toast.LENGTH_SHORT).show();
-            System.out.println(" transferred ..." + length);
+            //Toast.makeText(getBaseContext(), " transferred ..." + length, Toast.LENGTH_SHORT).show();
         }
 
         public void completed() {
-            // btn.setVisibility(View.VISIBLE);
             // Transfer completed
-            Toast.makeText(getBaseContext(), " completed ...", Toast.LENGTH_SHORT).show();
-            //System.out.println(" completed ..." );
+            // Toast.makeText(getBaseContext(), " completed ...", Toast.LENGTH_SHORT).show();
+            // thread.interrupt();
         }
 
         public void aborted() {
-            //btn.setVisibility(View.VISIBLE);
             // Transfer aborted
-            Toast.makeText(getBaseContext()," transfer aborted ,please try again...", Toast.LENGTH_SHORT).show();
-            //System.out.println(" aborted ..." );
+            //Toast.makeText(getBaseContext()," transfer aborted ,please try again...", Toast.LENGTH_SHORT).show();
         }
 
         public void failed() {
-            // btn.setVisibility(View.VISIBLE);
             // Transfer failed
-            System.out.println(" failed ..." );
+            //System.out.println(" failed ..." );
         }
-
     }
 
     public Bitmap combineImages(Bitmap frame, Bitmap image) {
         Bitmap cs = null;
         Bitmap rs = null;
-
-        rs = Bitmap.createScaledBitmap(frame, image.getWidth() + 50,
-                image.getHeight() + 50, true);
-
-        cs = Bitmap.createBitmap(rs.getWidth(), rs.getHeight(),
-                Bitmap.Config.RGB_565);
-
+        rs = Bitmap.createScaledBitmap(frame, image.getWidth() + 50, image.getHeight() + 50, true);
+        cs = Bitmap.createBitmap(rs.getWidth(), rs.getHeight(), Bitmap.Config.RGB_565);
         Canvas comboImage = new Canvas(cs);
-
         comboImage.drawBitmap(image, 25, 25, null);
         comboImage.drawBitmap(rs, 0, 0, null);
         if (rs != null) {
@@ -249,7 +223,6 @@ public class MainActivity extends Activity {
     }
 
     private static int exifToDegrees(Uri uri) {
-
         try {
             ExifInterface exif = new ExifInterface(uri.getPath());
             int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
@@ -262,5 +235,4 @@ public class MainActivity extends Activity {
         }
         return 0;
     }
-
 }
