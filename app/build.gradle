@@ -1,25 +1,29 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion '21.1.2'
+    compileSdkVersion 26
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "com.example.marcelomiqueles.manzafinalphoto"
         minSdkVersion 17
-        targetSdkVersion 20
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
     }
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile files('libs/ftp4j-1.7.2.jar')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation files('libs/ftp4j-1.7.2.jar')
 }
